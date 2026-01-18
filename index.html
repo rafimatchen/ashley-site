@@ -284,11 +284,16 @@
 
     <script>
         function burstHeart(element) {
-            // Clone the element for burst effect
-            const clone = element.cloneNode(true);
+            // Create burst heart at click/touch position
+            const rect = element.getBoundingClientRect();
+            const clone = document.createElement('div');
+            clone.textContent = element.textContent;
             clone.style.position = 'fixed';
-            clone.style.left = element.getBoundingClientRect().left + 'px';
-            clone.style.top = element.getBoundingClientRect().top + 'px';
+            clone.style.left = rect.left + rect.width / 2 + 'px';
+            clone.style.top = rect.top + rect.height / 2 + 'px';
+            clone.style.fontSize = '2em';
+            clone.style.pointerEvents = 'none';
+            clone.style.zIndex = '9999';
             clone.classList.add('burst');
             document.body.appendChild(clone);
 
@@ -298,11 +303,24 @@
             }, 600);
 
             // Original element bounce
-            element.style.transform = 'scale(0.8)';
+            element.style.transform = 'scale(1.5) rotate(20deg)';
             setTimeout(() => {
                 element.style.transform = 'scale(1)';
-            }, 100);
+            }, 200);
+
+            // Haptic feedback on mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
         }
+
+        // Add touch event listeners for better mobile support
+        document.querySelectorAll('.interactive-heart').forEach(heart => {
+            heart.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                burstHeart(this);
+            }, { passive: false });
+        });
 
         // Create random floating hearts
         setInterval(() => {
